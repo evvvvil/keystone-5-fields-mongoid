@@ -3,7 +3,6 @@ import {
   MongoIdImplementation,
   MongooseMongoIdInterface,
   KnexMongoIdInterface,
-  PrismaMongoIdInterface,
 } from './Implementation';
 import { Text } from '@keystonejs/fields';
 
@@ -20,7 +19,6 @@ export const MongoId = {
   adapters: {
     knex: KnexMongoIdInterface,
     mongoose: MongooseMongoIdInterface,
-    prisma: PrismaMongoIdInterface,
   },
 
   primaryKeyDefaults: {
@@ -28,15 +26,6 @@ export const MongoId = {
       getConfig: () => {
         throw (
           `The MongoId field type doesn't provide a default primary key field configuration for knex. ` +
-          `You'll need to supply your own 'id' field for each list or use a different field type for your ` +
-          `ids (eg '@keystonejs/fields-auto-increment').`
-        );
-      },
-    },
-    prisma: {
-      getConfig: () => {
-        throw (
-          `The MongoId field type doesn't provide a default primary key field configuration for Prisma. ` +
           `You'll need to supply your own 'id' field for each list or use a different field type for your ` +
           `ids (eg '@keystonejs/fields-auto-increment').`
         );
