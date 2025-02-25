@@ -60,7 +60,7 @@ class MongooseMongoIdInterface extends MongooseFieldAdapter {
     // If this field is the primary key we actually don't have to add it; it's implicit
     if (this.field.isPrimaryKey) return;
     const schemaOptions = {
-      type: new mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       validate: {
         validator: this.buildValidator(validator),
         message: '{VALUE} is not a valid Mongo ObjectId'
