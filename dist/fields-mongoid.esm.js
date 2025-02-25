@@ -100,7 +100,7 @@ class MongooseMongoIdInterface extends MongooseFieldAdapter {
 
   getQueryConditions(dbPath) {
     const mongoose = this.listAdapter.parentAdapter.mongoose;
-    return _objectSpread(_objectSpread({}, this.equalityConditions(this.field.isPrimaryKey ? '_id' : dbPath, s => s && mongoose.Types.ObjectId(s))), this.inConditions(this.field.isPrimaryKey ? '_id' : dbPath, s => s && mongoose.Types.ObjectId(s)));
+    return _objectSpread(_objectSpread({}, this.equalityConditions(this.field.isPrimaryKey ? '_id' : dbPath, s => s && new mongoose.Types.ObjectId(s))), this.inConditions(this.field.isPrimaryKey ? '_id' : dbPath, s => s && new mongoose.Types.ObjectId(s)));
   }
 
 }
