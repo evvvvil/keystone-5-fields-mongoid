@@ -3,7 +3,6 @@ import _objectSpread from '@babel/runtime/helpers/esm/objectSpread2';
 import { Implementation, Text } from '@keystonejs/fields';
 import { MongooseFieldAdapter } from '@keystonejs/adapter-mongoose';
 import { KnexFieldAdapter } from '@keystonejs/adapter-knex';
-import { PrismaFieldAdapter } from '@keystonejs/adapter-prisma';
 
 class MongoIdImplementation extends Implementation {
   get _supportsUnique() {
@@ -158,58 +157,6 @@ class KnexMongoIdInterface extends KnexFieldAdapter {
   }
 
 }
-class PrismaMongoIdInterface extends PrismaFieldAdapter {
-  constructor() {
-    super(...arguments);
-    this.isUnique = !!this.config.isUnique;
-    this.isIndexed = !!this.config.isIndexed && !this.config.isUnique;
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({
-      type: 'String'
-    })];
-  }
-
-  setupHooks({
-    addPreSaveHook,
-    addPostReadHook
-  }) {
-    addPreSaveHook(item => {
-      // Only run the hook if the item actually contains the field
-      // NOTE: Can't use hasOwnProperty here, as the mongoose data object
-      // returned isn't a POJO
-      if (!(this.path in item)) {
-        return item;
-      }
-
-      if (item[this.path]) {
-        if (typeof item[this.path] === 'string' && validator(item[this.path])) {
-          item[this.path] = normaliseValue(item[this.path]);
-        } else {
-          // Should have been caught by the validator??
-          throw new Error(`Invalid MongoID value given for '${this.path}'`);
-        }
-      } else {
-        item[this.path] = null;
-      }
-
-      return item;
-    });
-    addPostReadHook(item => {
-      if (item[this.path]) {
-        item[this.path] = normaliseValue(item[this.path]);
-      }
-
-      return item;
-    });
-  }
-
-  getQueryConditions(dbPath) {
-    return _objectSpread(_objectSpread({}, this.equalityConditions(dbPath, normaliseValue)), this.inConditions(dbPath, normaliseValue));
-  }
-
-}
 
 const pkgDir = path.dirname(require.resolve('@keystonejs/fields-mongoid/package.json'));
 const MongoId = {
@@ -222,18 +169,12 @@ const MongoId = {
   },
   adapters: {
     knex: KnexMongoIdInterface,
-    mongoose: MongooseMongoIdInterface,
-    prisma: PrismaMongoIdInterface
+    mongoose: MongooseMongoIdInterface
   },
   primaryKeyDefaults: {
     knex: {
       getConfig: () => {
         throw `The MongoId field type doesn't provide a default primary key field configuration for knex. ` + `You'll need to supply your own 'id' field for each list or use a different field type for your ` + `ids (eg '@keystonejs/fields-auto-increment').`;
-      }
-    },
-    prisma: {
-      getConfig: () => {
-        throw `The MongoId field type doesn't provide a default primary key field configuration for Prisma. ` + `You'll need to supply your own 'id' field for each list or use a different field type for your ` + `ids (eg '@keystonejs/fields-auto-increment').`;
       }
     },
     mongoose: {
